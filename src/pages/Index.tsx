@@ -1,12 +1,39 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { useBrownieData } from '@/hooks/useBrownieData';
+import MobileNavigation from '@/components/MobileNavigation';
+import Dashboard from '@/components/Dashboard';
+import PurchaseForm from '@/components/PurchaseForm';
+import SaleForm from '@/components/SaleForm';
+import CustomerList from '@/components/CustomerList';
+import Reports from '@/components/Reports';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('home');
+  const { purchases, sales, customers, addPurchase, addSale, getFinancialSummary } = useBrownieData();
+  
+  const summary = getFinancialSummary();
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'home':
+        return <Dashboard summary={summary} customerCount={customers.length} />;
+      case 'purchases':
+        return <PurchaseForm onAddPurchase={addPurchase} purchases={purchases} />;
+      case 'sales':
+        return <SaleForm onAddSale={addSale} sales={sales} customers={customers} />;
+      case 'customers':
+        return <CustomerList customers={customers} sales={sales} />;
+      case 'reports':
+        return <Reports purchases={purchases} sales={sales} summary={summary} />;
+      default:
+        return <Dashboard summary={summary} customerCount={customers.length} />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {renderContent()}
+      <MobileNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };
