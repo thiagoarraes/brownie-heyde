@@ -1,85 +1,177 @@
 import { useState, useEffect } from 'react';
 import { Purchase, Sale, Customer, FinancialSummary } from '@/types/brownie';
-
-const STORAGE_KEYS = {
-  purchases: 'brownie-purchases',
-  sales: 'brownie-sales',
-  customers: 'brownie-customers',
-};
+import { supabase } from '@/integrations/supabase/client';
 
 export const useBrownieData = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  // Load data from localStorage on mount
+  // Load data from Supabase on mount
   useEffect(() => {
-    const loadedPurchases = JSON.parse(localStorage.getItem(STORAGE_KEYS.purchases) || '[]');
-    const loadedSales = JSON.parse(localStorage.getItem(STORAGE_KEYS.sales) || '[]');
-    const loadedCustomers = JSON.parse(localStorage.getItem(STORAGE_KEYS.customers) || '[]');
-
-    setPurchases(loadedPurchases);
-    setSales(loadedSales);
-    setCustomers(loadedCustomers);
+    loadData();
   }, []);
 
-  // Save to localStorage whenever data changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.purchases, JSON.stringify(purchases));
-  }, [purchases]);
+  const loadData = async () => {
+    try {
+      // Load purchases
+      const { data: purchasesData, error: purchasesError } = await supabase
+        .from('purchases')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(sales));
-  }, [sales]);
+      if (purchasesError) {
+        console.error('Error loading purchases:', purchasesError);
+      } else {
+        setPurchases(purchasesData?.map(p => ({
+          id: p.id,
+          date: p.date,
+          quantity: p.quantity,
+          totalValue: p.total_value,
+          supplier: p.supplier,
+          notes: p.notes,
+          createdAt: p.created_at,
+        })) || []);
+      }
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.customers, JSON.stringify(customers));
-  }, [customers]);
+      // Load sales
+      const { data: salesData, error: salesError } = await supabase
+        .from('sales')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const addPurchase = (purchase: Omit<Purchase, 'id' | 'createdAt'>) => {
-    const newPurchase: Purchase = {
-      ...purchase,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-    };
-    setPurchases(prev => [newPurchase, ...prev]);
+      if (salesError) {
+        console.error('Error loading sales:', salesError);
+      } else {
+        setSales(salesData?.map(s => ({
+          id: s.id,
+          date: s.date,
+          customerName: s.customer_name,
+          quantity: s.quantity,
+          unitPrice: s.unit_price,
+          totalValue: s.total_value,
+          paymentMethod: s.payment_method as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+          notes: s.notes,
+          createdAt: s.created_at,
+        })) || []);
+      }
+
+      // Load customers
+      const { data: customersData, error: customersError } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (customersError) {
+        console.error('Error loading customers:', customersError);
+      } else {
+        setCustomers(customersData?.map(c => ({
+          id: c.id,
+          name: c.name,
+          totalSpent: c.total_spent,
+          totalPurchases: c.total_purchases,
+          lastPurchaseDate: c.last_purchase_date,
+          createdAt: c.created_at,
+        })) || []);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
   };
 
-  const addSale = (sale: Omit<Sale, 'id' | 'createdAt'>) => {
-    const newSale: Sale = {
-      ...sale,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-    };
-    setSales(prev => [newSale, ...prev]);
+  const addPurchase = async (purchase: Omit<Purchase, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('purchases')
+        .insert({
+          date: purchase.date,
+          quantity: purchase.quantity,
+          total_value: purchase.totalValue,
+          supplier: purchase.supplier,
+          notes: purchase.notes,
+        })
+        .select()
+        .single();
 
-    // Update or create customer
-    setCustomers(prev => {
-      const existingCustomer = prev.find(c => c.name.toLowerCase() === sale.customerName.toLowerCase());
-      
-      if (existingCustomer) {
-        return prev.map(c => 
-          c.id === existingCustomer.id 
-            ? {
-                ...c,
-                totalSpent: c.totalSpent + sale.totalValue,
-                totalPurchases: c.totalPurchases + 1,
-                lastPurchaseDate: sale.date,
-              }
-            : c
-        );
-      } else {
-        const newCustomer: Customer = {
-          id: Date.now().toString() + '-customer',
-          name: sale.customerName,
-          totalSpent: sale.totalValue,
-          totalPurchases: 1,
-          lastPurchaseDate: sale.date,
-          createdAt: new Date().toISOString(),
-        };
-        return [newCustomer, ...prev];
+      if (error) {
+        console.error('Error adding purchase:', error);
+        throw error;
       }
-    });
+
+      if (data) {
+        const newPurchase: Purchase = {
+          id: data.id,
+          date: data.date,
+          quantity: data.quantity,
+          totalValue: data.total_value,
+          supplier: data.supplier,
+          notes: data.notes,
+          createdAt: data.created_at,
+        };
+        setPurchases(prev => [newPurchase, ...prev]);
+      }
+    } catch (error) {
+      console.error('Error adding purchase:', error);
+      throw error;
+    }
+  };
+
+  const addSale = async (sale: Omit<Sale, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('sales')
+        .insert({
+          date: sale.date,
+          customer_name: sale.customerName,
+          quantity: sale.quantity,
+          unit_price: sale.unitPrice,
+          total_value: sale.totalValue,
+          payment_method: sale.paymentMethod,
+          notes: sale.notes,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding sale:', error);
+        throw error;
+      }
+
+      if (data) {
+        const newSale: Sale = {
+          id: data.id,
+          date: data.date,
+          customerName: data.customer_name,
+          quantity: data.quantity,
+          unitPrice: data.unit_price,
+          totalValue: data.total_value,
+          paymentMethod: data.payment_method as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+          notes: data.notes,
+          createdAt: data.created_at,
+        };
+        setSales(prev => [newSale, ...prev]);
+        
+        // Reload customers to get updated stats (handled by database trigger)
+        const { data: customersData } = await supabase
+          .from('customers')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (customersData) {
+          setCustomers(customersData.map(c => ({
+            id: c.id,
+            name: c.name,
+            totalSpent: c.total_spent,
+            totalPurchases: c.total_purchases,
+            lastPurchaseDate: c.last_purchase_date,
+            createdAt: c.created_at,
+          })));
+        }
+      }
+    } catch (error) {
+      console.error('Error adding sale:', error);
+      throw error;
+    }
   };
 
   const getFinancialSummary = (): FinancialSummary => {

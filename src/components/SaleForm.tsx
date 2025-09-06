@@ -10,7 +10,7 @@ import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 
 interface SaleFormProps {
-  onAddSale: (sale: Omit<Sale, 'id' | 'createdAt'>) => void;
+  onAddSale: (sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
   sales: Sale[];
   customers: { name: string }[];
 }
@@ -30,7 +30,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
     ? Number(formData.quantity) * Number(formData.unitPrice) 
     : 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.date || !formData.customerName || !formData.quantity || !formData.unitPrice) {
@@ -42,29 +42,37 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
       return;
     }
 
-    onAddSale({
-      date: formData.date,
-      customerName: formData.customerName,
-      quantity: Number(formData.quantity),
-      unitPrice: Number(formData.unitPrice),
-      totalValue,
-      paymentMethod: formData.paymentMethod,
-      notes: formData.notes,
-    });
+    try {
+      await onAddSale({
+        date: formData.date,
+        customerName: formData.customerName,
+        quantity: Number(formData.quantity),
+        unitPrice: Number(formData.unitPrice),
+        totalValue,
+        paymentMethod: formData.paymentMethod,
+        notes: formData.notes,
+      });
 
-    setFormData({
-      date: new Date().toISOString().split('T')[0],
-      customerName: '',
-      quantity: '',
-      unitPrice: '',
-      paymentMethod: 'pix',
-      notes: '',
-    });
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        customerName: '',
+        quantity: '',
+        unitPrice: '',
+        paymentMethod: 'pix',
+        notes: '',
+      });
 
-    toast({
-      title: 'Venda registrada!',
-      description: `${formData.quantity} brownies para ${formData.customerName}`,
-    });
+      toast({
+        title: 'Venda registrada!',
+        description: `${formData.quantity} brownies para ${formData.customerName}`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao registrar venda',
+        description: 'Tente novamente mais tarde.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const formatCurrency = (value: number) => {

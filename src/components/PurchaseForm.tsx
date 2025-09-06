@@ -9,7 +9,7 @@ import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 
 interface PurchaseFormProps {
-  onAddPurchase: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => void;
+  onAddPurchase: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
   purchases: Purchase[];
 }
 
@@ -23,7 +23,7 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
     notes: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.date || !formData.quantity || !formData.totalValue) {
@@ -35,26 +35,34 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
       return;
     }
 
-    onAddPurchase({
-      date: formData.date,
-      quantity: Number(formData.quantity),
-      totalValue: Number(formData.totalValue),
-      supplier: formData.supplier,
-      notes: formData.notes,
-    });
+    try {
+      await onAddPurchase({
+        date: formData.date,
+        quantity: Number(formData.quantity),
+        totalValue: Number(formData.totalValue),
+        supplier: formData.supplier,
+        notes: formData.notes,
+      });
 
-    setFormData({
-      date: new Date().toISOString().split('T')[0],
-      quantity: '',
-      totalValue: '',
-      supplier: '',
-      notes: '',
-    });
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        quantity: '',
+        totalValue: '',
+        supplier: '',
+        notes: '',
+      });
 
-    toast({
-      title: 'Compra registrada!',
-      description: `${formData.quantity} brownies por ${Number(formData.totalValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
-    });
+      toast({
+        title: 'Compra registrada!',
+        description: `${formData.quantity} brownies por ${Number(formData.totalValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao registrar compra',
+        description: 'Tente novamente mais tarde.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const formatCurrency = (value: number) => {
