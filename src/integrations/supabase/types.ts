@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          created_at: string
+          id: string
+          last_purchase_date: string | null
+          name: string
+          total_purchases: number
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_purchase_date?: string | null
+          name: string
+          total_purchases?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_purchase_date?: string | null
+          name?: string
+          total_purchases?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          quantity: number
+          supplier: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          quantity: number
+          supplier: string
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          supplier?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string
+          customer_name: string
+          date: string
+          id: string
+          notes: string | null
+          payment_method: string
+          quantity: number
+          total_value: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          date: string
+          id?: string
+          notes?: string | null
+          payment_method: string
+          quantity: number
+          total_value: number
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          quantity?: number
+          total_value?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
