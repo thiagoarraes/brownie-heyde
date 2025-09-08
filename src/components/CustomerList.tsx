@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Users, Search } from 'lucide-react';
 import { Customer, Sale } from '@/types/brownie';
+import { formatDateBR } from '@/lib/dateUtils';
 
 interface CustomerListProps {
   customers: Customer[];
@@ -92,7 +93,7 @@ const CustomerList = ({ customers, sales }: CustomerListProps) => {
                   <div>
                     <h3 className="font-semibold text-foreground">{customer.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Cliente desde {new Date(customer.createdAt).toLocaleDateString('pt-BR')}
+                      Cliente desde {formatDateBR(customer.createdAt)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -123,7 +124,7 @@ const CustomerList = ({ customers, sales }: CustomerListProps) => {
                 {customer.lastPurchaseDate && (
                   <div className="mt-3 pt-3 border-t border-border">
                     <p className="text-sm text-muted-foreground">
-                      Última compra: {new Date(customer.lastPurchaseDate).toLocaleDateString('pt-BR')}
+                      Última compra: {formatDateBR(customer.lastPurchaseDate)}
                     </p>
                   </div>
                 )}

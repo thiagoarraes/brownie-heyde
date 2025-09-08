@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
 import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
+import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
 
 interface SaleFormProps {
   onAddSale: (sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
@@ -18,7 +19,7 @@ interface SaleFormProps {
 const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: getTodayInputFormat(),
     customerName: '',
     quantity: '',
     unitPrice: '',
@@ -54,7 +55,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
       });
 
       setFormData({
-        date: new Date().toISOString().split('T')[0],
+        date: getTodayInputFormat(),
         customerName: '',
         quantity: '',
         unitPrice: '',
@@ -215,7 +216,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
                 <div>
                   <p className="font-medium text-foreground">{sale.customerName}</p>
                   <p className="text-sm text-muted-foreground">
-                    {sale.quantity} brownies • {new Date(sale.date).toLocaleDateString('pt-BR')}
+                    {sale.quantity} brownies • {formatDateBR(sale.date)}
                   </p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {sale.paymentMethod}

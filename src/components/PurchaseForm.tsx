@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { ShoppingBag } from 'lucide-react';
 import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
+import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
 
 interface PurchaseFormProps {
   onAddPurchase: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
@@ -16,7 +17,7 @@ interface PurchaseFormProps {
 const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: getTodayInputFormat(),
     quantity: '',
     totalValue: '',
     supplier: '',
@@ -45,7 +46,7 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
       });
 
       setFormData({
-        date: new Date().toISOString().split('T')[0],
+        date: getTodayInputFormat(),
         quantity: '',
         totalValue: '',
         supplier: '',
@@ -169,7 +170,7 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
                     {purchase.quantity} brownies
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(purchase.date).toLocaleDateString('pt-BR')}
+                    {formatDateBR(purchase.date)}
                   </p>
                   {purchase.supplier && (
                     <p className="text-sm text-muted-foreground">{purchase.supplier}</p>
