@@ -4,30 +4,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { TrendingUp } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Edit } from 'lucide-react';
 import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
-import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
-import EditSaleDialog from '@/components/EditSaleDialog';
 
-interface SaleFormProps {
-  onAddSale: (sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
-  onUpdateSale: (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
-  sales: Sale[];
+interface EditSaleDialogProps {
+  sale: Sale;
   customers: { name: string }[];
+  onUpdateSale: (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
 }
 
-const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) => {
+const EditSaleDialog = ({ sale, customers, onUpdateSale }: EditSaleDialogProps) => {
   const { toast } = useToast();
+  const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    date: getTodayInputFormat(),
-    customerName: '',
-    quantity: '',
-    unitPrice: '',
-    paymentMethod: 'pix' as 'dinheiro' | 'pix' | 'cartao' | 'outros',
-    brownieType: 'Doce de leite' as 'Doce de leite' | 'Ninho',
-    notes: '',
+    date: sale.date,
+    customerName: sale.customerName,
+    quantity: sale.quantity.toString(),
+    unitPrice: sale.unitPrice.toString(),
+    paymentMethod: sale.paymentMethod,
+    brownieType: sale.brownieType,
+    notes: sale.notes || '',
   });
 
   const totalValue = formData.quantity && formData.unitPrice 
@@ -47,7 +45,7 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
     }
 
     try {
-      await onAddSale({
+      await onUpdateSale(sale.id, {
         date: formData.date,
         customerName: formData.customerName,
         quantity: Number(formData.quantity),
@@ -58,23 +56,14 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
         notes: formData.notes,
       });
 
-      setFormData({
-        date: getTodayInputFormat(),
-        customerName: '',
-        quantity: '',
-        unitPrice: '',
-        paymentMethod: 'pix',
-        brownieType: 'Doce de leite',
-        notes: '',
-      });
-
+      setOpen(false);
       toast({
-        title: 'Venda registrada!',
-        description: `${formData.quantity} brownies para ${formData.customerName}`,
+        title: 'Venda atualizada!',
+        description: 'Os dados foram atualizados com sucesso.',
       });
     } catch (error) {
       toast({
-        title: 'Erro ao registrar venda',
+        title: 'Erro ao atualizar venda',
         description: 'Tente novamente mais tarde.',
         variant: 'destructive',
       });
@@ -101,19 +90,21 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
   ];
 
   return (
-    <div className="p-4 pb-20 space-y-6">
-      <div className="text-center mb-6">
-        <TrendingUp className="mx-auto mb-2 text-accent" size={32} />
-        <h1 className="text-2xl font-bold text-foreground">Nova Venda</h1>
-        <p className="text-muted-foreground">Registre suas vendas de brownies</p>
-      </div>
-
-      <Card className="p-6 border border-border">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <Edit className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Editar Venda</DialogTitle>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="date">Data da Venda *</Label>
+            <Label htmlFor="edit-date">Data da Venda *</Label>
             <Input
-              id="date"
+              id="edit-date"
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -123,17 +114,16 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
           </div>
 
           <div>
-            <Label htmlFor="customerName">Nome do Cliente *</Label>
+            <Label htmlFor="edit-customerName">Nome do Cliente *</Label>
             <Input
-              id="customerName"
-              list="customers"
+              id="edit-customerName"
+              list="edit-customers"
               value={formData.customerName}
               onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
               className="mt-1"
-              placeholder="Ex: Maria Silva"
               required
             />
-            <datalist id="customers">
+            <datalist id="edit-customers">
               {customers.map((customer, index) => (
                 <option key={index} value={customer.name} />
               ))}
@@ -141,30 +131,28 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
           </div>
 
           <div>
-            <Label htmlFor="quantity">Quantidade Vendida *</Label>
+            <Label htmlFor="edit-quantity">Quantidade Vendida *</Label>
             <Input
-              id="quantity"
+              id="edit-quantity"
               type="number"
               min="1"
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               className="mt-1"
-              placeholder="Ex: 5"
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="unitPrice">Preço Unitário *</Label>
+            <Label htmlFor="edit-unitPrice">Preço Unitário *</Label>
             <Input
-              id="unitPrice"
+              id="edit-unitPrice"
               type="number"
               step="0.01"
               min="0"
               value={formData.unitPrice}
               onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
               className="mt-1"
-              placeholder="Ex: 8.00"
               required
             />
           </div>
@@ -178,7 +166,7 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
           )}
 
           <div>
-            <Label htmlFor="brownieType">Tipo de Brownie *</Label>
+            <Label htmlFor="edit-brownieType">Tipo de Brownie *</Label>
             <Select 
               value={formData.brownieType} 
               onValueChange={(value: 'Doce de leite' | 'Ninho') => 
@@ -199,7 +187,7 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
           </div>
 
           <div>
-            <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
+            <Label htmlFor="edit-paymentMethod">Forma de Pagamento</Label>
             <Select 
               value={formData.paymentMethod} 
               onValueChange={(value: 'dinheiro' | 'pix' | 'cartao' | 'outros') => 
@@ -220,61 +208,28 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
           </div>
 
           <div>
-            <Label htmlFor="notes">Observações</Label>
+            <Label htmlFor="edit-notes">Observações</Label>
             <Textarea
-              id="notes"
+              id="edit-notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="mt-1"
-              placeholder="Detalhes adicionais sobre a venda..."
               rows={3}
             />
           </div>
 
-          <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
-            Registrar Venda
-          </Button>
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit">
+              Salvar Alterações
+            </Button>
+          </div>
         </form>
-      </Card>
-
-      {/* Recent Sales */}
-      {sales.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Vendas Recentes</h2>
-          {sales.slice(0, 5).map((sale) => (
-            <Card key={sale.id} className="p-4 border border-border">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">{sale.customerName}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {sale.quantity} {sale.brownieType} • {formatDateBR(sale.date)}
-                  </p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {sale.paymentMethod}
-                  </p>
-                </div>
-                <div className="text-right flex items-center gap-2">
-                  <div>
-                    <p className="font-bold text-accent">
-                      {formatCurrency(sale.totalValue)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(sale.unitPrice)}/un
-                    </p>
-                  </div>
-                  <EditSaleDialog 
-                    sale={sale}
-                    customers={customers}
-                    onUpdateSale={onUpdateSale}
-                  />
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default SaleForm;
+export default EditSaleDialog;

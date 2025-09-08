@@ -202,12 +202,113 @@ export const useBrownieData = () => {
     };
   };
 
+  const updatePurchase = async (id: string, purchase: Omit<Purchase, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('purchases')
+        .update({
+          date: purchase.date,
+          quantity: purchase.quantity,
+          total_value: purchase.totalValue,
+          supplier: purchase.supplier,
+          notes: purchase.notes,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating purchase:', error);
+        throw error;
+      }
+
+      if (data) {
+        const updatedPurchase: Purchase = {
+          id: data.id,
+          date: data.date,
+          quantity: data.quantity,
+          totalValue: data.total_value,
+          supplier: data.supplier,
+          notes: data.notes,
+          createdAt: data.created_at,
+        };
+        setPurchases(prev => prev.map(p => p.id === id ? updatedPurchase : p));
+      }
+    } catch (error) {
+      console.error('Error updating purchase:', error);
+      throw error;
+    }
+  };
+
+  const updateSale = async (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('sales')
+        .update({
+          date: sale.date,
+          customer_name: sale.customerName,
+          quantity: sale.quantity,
+          unit_price: sale.unitPrice,
+          total_value: sale.totalValue,
+          payment_method: sale.paymentMethod,
+          brownie_type: sale.brownieType,
+          notes: sale.notes,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating sale:', error);
+        throw error;
+      }
+
+      if (data) {
+        const updatedSale: Sale = {
+          id: data.id,
+          date: data.date,
+          customerName: data.customer_name,
+          quantity: data.quantity,
+          unitPrice: data.unit_price,
+          totalValue: data.total_value,
+          paymentMethod: data.payment_method as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+          brownieType: data.brownie_type as 'Doce de leite' | 'Ninho',
+          notes: data.notes,
+          createdAt: data.created_at,
+        };
+        setSales(prev => prev.map(s => s.id === id ? updatedSale : s));
+        
+        // Reload customers to get updated stats (handled by database trigger)
+        const { data: customersData } = await supabase
+          .from('customers')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (customersData) {
+          setCustomers(customersData.map(c => ({
+            id: c.id,
+            name: c.name,
+            totalSpent: c.total_spent,
+            totalPurchases: c.total_purchases,
+            lastPurchaseDate: c.last_purchase_date,
+            createdAt: c.created_at,
+          })));
+        }
+      }
+    } catch (error) {
+      console.error('Error updating sale:', error);
+      throw error;
+    }
+  };
+
   return {
     purchases,
     sales,
     customers,
     addPurchase,
     addSale,
+    updatePurchase,
+    updateSale,
     getFinancialSummary,
   };
 };

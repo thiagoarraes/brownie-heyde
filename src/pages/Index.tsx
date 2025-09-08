@@ -9,7 +9,7 @@ import Reports from '@/components/Reports';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
-  const { purchases, sales, customers, addPurchase, addSale, getFinancialSummary } = useBrownieData();
+  const { purchases, sales, customers, addPurchase, addSale, updatePurchase, updateSale, getFinancialSummary } = useBrownieData();
   
   const summary = getFinancialSummary();
 
@@ -18,9 +18,9 @@ const Index = () => {
       case 'home':
         return <Dashboard summary={summary} customerCount={customers.length} />;
       case 'purchases':
-        return <PurchaseForm onAddPurchase={addPurchase} purchases={purchases} />;
+        return <PurchaseForm onAddPurchase={addPurchase} onUpdatePurchase={updatePurchase} purchases={purchases} />;
       case 'sales':
-        return <SaleForm onAddSale={addSale} sales={sales} customers={customers} />;
+        return <SaleForm onAddSale={addSale} onUpdateSale={updateSale} sales={sales} customers={customers} />;
       case 'customers':
         return <CustomerList customers={customers} sales={sales} />;
       case 'reports':

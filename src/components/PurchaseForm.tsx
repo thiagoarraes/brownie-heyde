@@ -8,13 +8,15 @@ import { ShoppingBag } from 'lucide-react';
 import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
+import EditPurchaseDialog from '@/components/EditPurchaseDialog';
 
 interface PurchaseFormProps {
   onAddPurchase: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
+  onUpdatePurchase: (id: string, purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
   purchases: Purchase[];
 }
 
-const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
+const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, purchases }: PurchaseFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     date: getTodayInputFormat(),
@@ -165,7 +167,7 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
           {purchases.slice(0, 5).map((purchase) => (
             <Card key={purchase.id} className="p-4 border border-border">
               <div className="flex justify-between items-start">
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-foreground">
                     {purchase.quantity} brownies
                   </p>
@@ -176,13 +178,19 @@ const PurchaseForm = ({ onAddPurchase, purchases }: PurchaseFormProps) => {
                     <p className="text-sm text-muted-foreground">{purchase.supplier}</p>
                   )}
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-foreground">
-                    {formatCurrency(purchase.totalValue)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatCurrency(purchase.totalValue / purchase.quantity)}/un
-                  </p>
+                <div className="text-right flex items-center gap-2">
+                  <div>
+                    <p className="font-bold text-foreground">
+                      {formatCurrency(purchase.totalValue)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatCurrency(purchase.totalValue / purchase.quantity)}/un
+                    </p>
+                  </div>
+                  <EditPurchaseDialog 
+                    purchase={purchase} 
+                    onUpdatePurchase={onUpdatePurchase}
+                  />
                 </div>
               </div>
             </Card>
