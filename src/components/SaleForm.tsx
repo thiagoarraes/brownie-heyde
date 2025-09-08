@@ -24,6 +24,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
     quantity: '',
     unitPrice: '',
     paymentMethod: 'pix' as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+    brownieType: 'Doce de leite' as 'Doce de leite' | 'Ninho',
     notes: '',
   });
 
@@ -51,6 +52,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
         unitPrice: Number(formData.unitPrice),
         totalValue,
         paymentMethod: formData.paymentMethod,
+        brownieType: formData.brownieType,
         notes: formData.notes,
       });
 
@@ -60,6 +62,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
         quantity: '',
         unitPrice: '',
         paymentMethod: 'pix',
+        brownieType: 'Doce de leite',
         notes: '',
       });
 
@@ -88,6 +91,11 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
     { value: 'dinheiro', label: 'Dinheiro' },
     { value: 'cartao', label: 'Cartão' },
     { value: 'outros', label: 'Outros' },
+  ];
+
+  const brownieTypes = [
+    { value: 'Doce de leite', label: 'Doce de leite' },
+    { value: 'Ninho', label: 'Ninho' },
   ];
 
   return (
@@ -168,6 +176,27 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
           )}
 
           <div>
+            <Label htmlFor="brownieType">Tipo de Brownie *</Label>
+            <Select 
+              value={formData.brownieType} 
+              onValueChange={(value: 'Doce de leite' | 'Ninho') => 
+                setFormData({ ...formData, brownieType: value })
+              }
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-background border border-border z-50">
+                {brownieTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
             <Select 
               value={formData.paymentMethod} 
@@ -178,7 +207,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border border-border z-50">
                 {paymentMethods.map((method) => (
                   <SelectItem key={method.value} value={method.value}>
                     {method.label}
@@ -216,7 +245,7 @@ const SaleForm = ({ onAddSale, sales, customers }: SaleFormProps) => {
                 <div>
                   <p className="font-medium text-foreground">{sale.customerName}</p>
                   <p className="text-sm text-muted-foreground">
-                    {sale.quantity} brownies • {formatDateBR(sale.date)}
+                    {sale.quantity} {sale.brownieType} • {formatDateBR(sale.date)}
                   </p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {sale.paymentMethod}

@@ -51,6 +51,7 @@ export const useBrownieData = () => {
           unitPrice: s.unit_price,
           totalValue: s.total_value,
           paymentMethod: s.payment_method as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+          brownieType: s.brownie_type as 'Doce de leite' | 'Ninho',
           notes: s.notes,
           createdAt: s.created_at,
         })) || []);
@@ -127,6 +128,7 @@ export const useBrownieData = () => {
           unit_price: sale.unitPrice,
           total_value: sale.totalValue,
           payment_method: sale.paymentMethod,
+          brownie_type: sale.brownieType,
           notes: sale.notes,
         })
         .select()
@@ -146,6 +148,7 @@ export const useBrownieData = () => {
           unitPrice: data.unit_price,
           totalValue: data.total_value,
           paymentMethod: data.payment_method as 'dinheiro' | 'pix' | 'cartao' | 'outros',
+          brownieType: data.brownie_type as 'Doce de leite' | 'Ninho',
           notes: data.notes,
           createdAt: data.created_at,
         };

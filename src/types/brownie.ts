@@ -16,6 +16,7 @@ export interface Sale {
   unitPrice: number;
   totalValue: number;
   paymentMethod: 'dinheiro' | 'pix' | 'cartao' | 'outros';
+  brownieType: 'Doce de leite' | 'Ninho';
   notes?: string;
   createdAt: string;
 }

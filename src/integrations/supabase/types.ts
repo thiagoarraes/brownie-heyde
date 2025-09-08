@@ -79,6 +79,7 @@ export type Database = {
       }
       sales: {
         Row: {
+          brownie_type: string
           created_at: string
           customer_name: string
           date: string
@@ -91,6 +92,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          brownie_type?: string
           created_at?: string
           customer_name: string
           date: string
@@ -103,6 +105,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          brownie_type?: string
           created_at?: string
           customer_name?: string
           date?: string

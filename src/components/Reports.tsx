@@ -79,9 +79,25 @@ const Reports = ({ purchases, sales, summary }: ReportsProps) => {
       .slice(0, 5);
   };
 
+  const getBrownieTypeStats = () => {
+    const brownieTypes = sales.reduce((acc, sale) => {
+      acc[sale.brownieType] = (acc[sale.brownieType] || 0) + sale.quantity;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const totalBrownies = Object.values(brownieTypes).reduce((sum, count) => sum + count, 0);
+
+    return Object.entries(brownieTypes).map(([type, quantity]) => ({
+      type,
+      quantity,
+      percentage: totalBrownies > 0 ? (quantity / totalBrownies) * 100 : 0,
+    }));
+  };
+
   const monthlyData = getMonthlyData();
   const paymentStats = getPaymentMethodStats();
   const topCustomers = getTopCustomers();
+  const brownieTypeStats = getBrownieTypeStats();
 
   const currentMonthName = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
@@ -190,6 +206,27 @@ const Reports = ({ purchases, sales, summary }: ReportsProps) => {
                   <span className="font-medium text-foreground">{stat.method}</span>
                   <div className="text-right">
                     <p className="font-bold text-foreground">{formatCurrency(stat.total)}</p>
+                    <p className="text-sm text-muted-foreground">{stat.percentage.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Brownie Types */}
+      {brownieTypeStats.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">Tipos de Brownie Mais Vendidos</h2>
+          
+          <div className="space-y-3">
+            {brownieTypeStats.map((stat) => (
+              <Card key={stat.type} className="p-4 border border-border">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-foreground">{stat.type}</span>
+                  <div className="text-right">
+                    <p className="font-bold text-foreground">{stat.quantity} brownies</p>
                     <p className="text-sm text-muted-foreground">{stat.percentage.toFixed(1)}%</p>
                   </div>
                 </div>
