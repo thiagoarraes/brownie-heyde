@@ -5,20 +5,23 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, MoreVertical, Edit } from 'lucide-react';
 import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
 import EditSaleDialog from '@/components/EditSaleDialog';
+import DeleteSaleDialog from '@/components/DeleteSaleDialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface SaleFormProps {
   onAddSale: (sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
   onUpdateSale: (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
+  onDeleteSale: (id: string) => Promise<void>;
   sales: Sale[];
   customers: { name: string }[];
 }
 
-const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) => {
+const SaleForm = ({ onAddSale, onUpdateSale, onDeleteSale, sales, customers }: SaleFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     date: getTodayInputFormat(),
@@ -253,7 +256,7 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
                     {sale.paymentMethod}
                   </p>
                 </div>
-                <div className="text-right flex items-center gap-2">
+                <div className="text-right flex items-center">
                   <div>
                     <p className="font-bold text-accent">
                       {formatCurrency(sale.totalValue)}
@@ -262,11 +265,29 @@ const SaleForm = ({ onAddSale, onUpdateSale, sales, customers }: SaleFormProps) 
                       {formatCurrency(sale.unitPrice)}/un
                     </p>
                   </div>
-                  <EditSaleDialog 
-                    sale={sale}
-                    customers={customers}
-                    onUpdateSale={onUpdateSale}
-                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 ml-2 flex-shrink-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <EditSaleDialog
+                        sale={sale}
+                        customers={customers}
+                        onUpdateSale={onUpdateSale}
+                      >
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>Editar</span>
+                        </DropdownMenuItem>
+                      </EditSaleDialog>
+                      <DeleteSaleDialog 
+                        saleId={sale.id} 
+                        onDeleteSale={onDeleteSale} 
+                      />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </Card>

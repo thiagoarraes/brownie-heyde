@@ -4,19 +4,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, MoreVertical, Edit } from 'lucide-react';
 import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
 import EditPurchaseDialog from '@/components/EditPurchaseDialog';
+import DeletePurchaseDialog from '@/components/DeletePurchaseDialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface PurchaseFormProps {
   onAddPurchase: (purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
   onUpdatePurchase: (id: string, purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
+  onDeletePurchase: (id: string) => Promise<void>;
   purchases: Purchase[];
 }
 
-const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, purchases }: PurchaseFormProps) => {
+const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, onDeletePurchase, purchases }: PurchaseFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     date: getTodayInputFormat(),
@@ -178,7 +181,7 @@ const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, purchases }: PurchaseFo
                     <p className="text-sm text-muted-foreground">{purchase.supplier}</p>
                   )}
                 </div>
-                <div className="text-right flex items-center gap-2">
+                <div className="text-right flex items-center">
                   <div>
                     <p className="font-bold text-foreground">
                       {formatCurrency(purchase.totalValue)}
@@ -187,10 +190,28 @@ const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, purchases }: PurchaseFo
                       {formatCurrency(purchase.totalValue / purchase.quantity)}/un
                     </p>
                   </div>
-                  <EditPurchaseDialog 
-                    purchase={purchase} 
-                    onUpdatePurchase={onUpdatePurchase}
-                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 ml-2 flex-shrink-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <EditPurchaseDialog 
+                        purchase={purchase} 
+                        onUpdatePurchase={onUpdatePurchase}
+                      >
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>Editar</span>
+                        </DropdownMenuItem>
+                      </EditPurchaseDialog>
+                      <DeletePurchaseDialog 
+                        purchaseId={purchase.id} 
+                        onDeletePurchase={onDeletePurchase} 
+                      />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </Card>

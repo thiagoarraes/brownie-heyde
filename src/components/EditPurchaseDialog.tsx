@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Edit } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditPurchaseDialogProps {
   purchase: Purchase;
   onUpdatePurchase: (id: string, purchase: Omit<Purchase, 'id' | 'createdAt'>) => Promise<void>;
+  children: ReactNode;
 }
 
-const EditPurchaseDialog = ({ purchase, onUpdatePurchase }: EditPurchaseDialogProps) => {
+const EditPurchaseDialog = ({ purchase, onUpdatePurchase, children }: EditPurchaseDialogProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,6 +23,18 @@ const EditPurchaseDialog = ({ purchase, onUpdatePurchase }: EditPurchaseDialogPr
     supplier: purchase.supplier,
     notes: purchase.notes || '',
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        date: purchase.date,
+        quantity: purchase.quantity.toString(),
+        totalValue: purchase.totalValue.toString(),
+        supplier: purchase.supplier,
+        notes: purchase.notes || '',
+      });
+    }
+  }, [open, purchase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,16 +80,12 @@ const EditPurchaseDialog = ({ purchase, onUpdatePurchase }: EditPurchaseDialogPr
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-          <Edit className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] flex flex-col max-h-[90dvh] p-0">
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>Editar Compra</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="edit-purchase-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 space-y-4">
           <div>
             <Label htmlFor="edit-date">Data da Compra *</Label>
             <Input
@@ -142,16 +150,15 @@ const EditPurchaseDialog = ({ purchase, onUpdatePurchase }: EditPurchaseDialogPr
               rows={3}
             />
           </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit">
-              Salvar Alterações
-            </Button>
-          </div>
         </form>
+        <DialogFooter className="p-6 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            Cancelar
+          </Button>
+          <Button type="submit" form="edit-purchase-form">
+            Salvar Alterações
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

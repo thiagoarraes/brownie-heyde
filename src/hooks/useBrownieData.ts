@@ -301,6 +301,61 @@ export const useBrownieData = () => {
     }
   };
 
+  const deletePurchase = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('purchases')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting purchase:', error);
+        throw error;
+      }
+
+      setPurchases(prev => prev.filter(p => p.id !== id));
+    } catch (error) {
+      console.error('Error deleting purchase:', error);
+      throw error;
+    }
+  };
+
+  const deleteSale = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('sales')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting sale:', error);
+        throw error;
+      }
+
+      setSales(prev => prev.filter(s => s.id !== id));
+
+      // Reload customers to get updated stats (handled by database trigger)
+      const { data: customersData } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (customersData) {
+        setCustomers(customersData.map(c => ({
+          id: c.id,
+          name: c.name,
+          totalSpent: c.total_spent,
+          totalPurchases: c.total_purchases,
+          lastPurchaseDate: c.last_purchase_date,
+          createdAt: c.created_at,
+        })));
+      }
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+      throw error;
+    }
+  };
+
   return {
     purchases,
     sales,
@@ -309,6 +364,8 @@ export const useBrownieData = () => {
     addSale,
     updatePurchase,
     updateSale,
+    deletePurchase,
+    deleteSale,
     getFinancialSummary,
   };
 };

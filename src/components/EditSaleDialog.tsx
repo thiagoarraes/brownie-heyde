@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Edit } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,9 +12,10 @@ interface EditSaleDialogProps {
   sale: Sale;
   customers: { name: string }[];
   onUpdateSale: (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => Promise<void>;
+  children: ReactNode;
 }
 
-const EditSaleDialog = ({ sale, customers, onUpdateSale }: EditSaleDialogProps) => {
+const EditSaleDialog = ({ sale, customers, onUpdateSale, children }: EditSaleDialogProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,6 +31,20 @@ const EditSaleDialog = ({ sale, customers, onUpdateSale }: EditSaleDialogProps) 
   const totalValue = formData.quantity && formData.unitPrice 
     ? Number(formData.quantity) * Number(formData.unitPrice) 
     : 0;
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        date: sale.date,
+        customerName: sale.customerName,
+        quantity: sale.quantity.toString(),
+        unitPrice: sale.unitPrice.toString(),
+        paymentMethod: sale.paymentMethod,
+        brownieType: sale.brownieType,
+        notes: sale.notes || '',
+      });
+    }
+  }, [open, sale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,16 +105,12 @@ const EditSaleDialog = ({ sale, customers, onUpdateSale }: EditSaleDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-          <Edit className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] flex flex-col max-h-[90dvh] p-0">
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>Editar Venda</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="edit-sale-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 space-y-4">
           <div>
             <Label htmlFor="edit-date">Data da Venda *</Label>
             <Input
@@ -217,16 +227,15 @@ const EditSaleDialog = ({ sale, customers, onUpdateSale }: EditSaleDialogProps) 
               rows={3}
             />
           </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit">
-              Salvar Alterações
-            </Button>
-          </div>
         </form>
+        <DialogFooter className="p-6 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            Cancelar
+          </Button>
+          <Button type="submit" form="edit-sale-form">
+            Salvar Alterações
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
