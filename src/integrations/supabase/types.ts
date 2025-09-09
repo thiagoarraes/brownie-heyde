@@ -23,6 +23,7 @@ export type Database = {
           total_purchases: number
           total_spent: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -32,6 +33,7 @@ export type Database = {
           total_purchases?: number
           total_spent?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -41,6 +43,34 @@ export type Database = {
           total_purchases?: number
           total_spent?: number
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -54,6 +84,7 @@ export type Database = {
           supplier: string
           total_value: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -64,6 +95,7 @@ export type Database = {
           supplier: string
           total_value: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -74,6 +106,7 @@ export type Database = {
           supplier?: string
           total_value?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -90,6 +123,7 @@ export type Database = {
           total_value: number
           unit_price: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           brownie_type?: string
@@ -103,6 +137,7 @@ export type Database = {
           total_value: number
           unit_price: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           brownie_type?: string
@@ -116,6 +151,7 @@ export type Database = {
           total_value?: number
           unit_price?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
