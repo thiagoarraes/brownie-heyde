@@ -10,69 +10,52 @@ import CustomerList from '@/components/CustomerList';
 import Reports from '@/components/Reports';
 import { Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
   const navigate = useNavigate();
-  const { user, loading, signOut } = useAuth();
-  
-  const { 
-    purchases, 
-    sales, 
-    customers, 
-    addPurchase, 
-    addSale, 
-    updatePurchase, 
-    updateSale, 
+  const {
+    user,
+    loading,
+    signOut
+  } = useAuth();
+  const {
+    purchases,
+    sales,
+    customers,
+    addPurchase,
+    addSale,
+    updatePurchase,
+    updateSale,
     deletePurchase,
     deleteSale,
-    getFinancialSummary 
+    getFinancialSummary
   } = useBrownieData();
-  
   const summary = getFinancialSummary();
-
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
   if (!user) {
     return null;
   }
-
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
         return <Dashboard summary={summary} customerCount={customers.length} />;
       case 'purchases':
-        return <PurchaseForm 
-                  onAddPurchase={addPurchase} 
-                  onUpdatePurchase={updatePurchase} 
-                  onDeletePurchase={deletePurchase}
-                  purchases={purchases} 
-                />;
+        return <PurchaseForm onAddPurchase={addPurchase} onUpdatePurchase={updatePurchase} onDeletePurchase={deletePurchase} purchases={purchases} />;
       case 'sales':
-        return <SaleForm 
-                  onAddSale={addSale} 
-                  onUpdateSale={updateSale} 
-                  onDeleteSale={deleteSale}
-                  sales={sales} 
-                  customers={customers} 
-                />;
+        return <SaleForm onAddSale={addSale} onUpdateSale={updateSale} onDeleteSale={deleteSale} sales={sales} customers={customers} />;
       case 'customers':
         return <CustomerList customers={customers} sales={sales} />;
       case 'reports':
@@ -81,11 +64,9 @@ const Index = () => {
         return <Dashboard summary={summary} customerCount={customers.length} />;
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <div className="flex items-center justify-between p-4 border-b">
-        <h1 className="text-xl font-bold">🧁 Brownie Business</h1>
+        <h1 className="text-xl font-bold">🧁 HeyBrownies</h1>
         <Button variant="outline" size="sm" onClick={handleSignOut}>
           <LogOut className="h-4 w-4 mr-2" />
           Sair
@@ -93,8 +74,6 @@ const Index = () => {
       </div>
       {renderContent()}
       <MobileNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
