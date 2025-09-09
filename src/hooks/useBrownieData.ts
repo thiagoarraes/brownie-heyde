@@ -1,23 +1,35 @@
 import { useState, useEffect } from 'react';
 import { Purchase, Sale, Customer, FinancialSummary } from '@/types/brownie';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 export const useBrownieData = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const { user } = useAuth();
 
-  // Load data from Supabase on mount
+  // Load data from Supabase when user changes
   useEffect(() => {
-    loadData();
-  }, []);
+    if (user) {
+      loadData();
+    } else {
+      // Clear data when user logs out
+      setPurchases([]);
+      setSales([]);
+      setCustomers([]);
+    }
+  }, [user]);
 
   const loadData = async () => {
+    if (!user) return;
+
     try {
-      // Load purchases
+      // Load purchases for current user
       const { data: purchasesData, error: purchasesError } = await supabase
         .from('purchases')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (purchasesError) {
@@ -34,10 +46,11 @@ export const useBrownieData = () => {
         })) || []);
       }
 
-      // Load sales
+      // Load sales for current user
       const { data: salesData, error: salesError } = await supabase
         .from('sales')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (salesError) {
@@ -57,10 +70,11 @@ export const useBrownieData = () => {
         })) || []);
       }
 
-      // Load customers
+      // Load customers for current user
       const { data: customersData, error: customersError } = await supabase
         .from('customers')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (customersError) {
@@ -81,10 +95,13 @@ export const useBrownieData = () => {
   };
 
   const addPurchase = async (purchase: Omit<Purchase, 'id' | 'createdAt'>) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { data, error } = await supabase
         .from('purchases')
         .insert({
+          user_id: user.id,
           date: purchase.date,
           quantity: purchase.quantity,
           total_value: purchase.totalValue,
@@ -118,10 +135,13 @@ export const useBrownieData = () => {
   };
 
   const addSale = async (sale: Omit<Sale, 'id' | 'createdAt'>) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { data, error } = await supabase
         .from('sales')
         .insert({
+          user_id: user.id,
           date: sale.date,
           customer_name: sale.customerName,
           quantity: sale.quantity,
@@ -158,6 +178,7 @@ export const useBrownieData = () => {
         const { data: customersData } = await supabase
           .from('customers')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (customersData) {
@@ -203,6 +224,8 @@ export const useBrownieData = () => {
   };
 
   const updatePurchase = async (id: string, purchase: Omit<Purchase, 'id' | 'createdAt'>) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { data, error } = await supabase
         .from('purchases')
@@ -214,6 +237,7 @@ export const useBrownieData = () => {
           notes: purchase.notes,
         })
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -241,6 +265,8 @@ export const useBrownieData = () => {
   };
 
   const updateSale = async (id: string, sale: Omit<Sale, 'id' | 'createdAt'>) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { data, error } = await supabase
         .from('sales')
@@ -255,6 +281,7 @@ export const useBrownieData = () => {
           notes: sale.notes,
         })
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -282,6 +309,7 @@ export const useBrownieData = () => {
         const { data: customersData } = await supabase
           .from('customers')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (customersData) {
@@ -302,11 +330,14 @@ export const useBrownieData = () => {
   };
 
   const deletePurchase = async (id: string) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { error } = await supabase
         .from('purchases')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error deleting purchase:', error);
@@ -321,11 +352,14 @@ export const useBrownieData = () => {
   };
 
   const deleteSale = async (id: string) => {
+    if (!user) throw new Error('User must be authenticated');
+
     try {
       const { error } = await supabase
         .from('sales')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error deleting sale:', error);
@@ -338,6 +372,7 @@ export const useBrownieData = () => {
       const { data: customersData } = await supabase
         .from('customers')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
       if (customersData) {
