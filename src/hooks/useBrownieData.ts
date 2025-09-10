@@ -414,6 +414,26 @@ export const useBrownieData = () => {
     }
   };
 
+  const convertCurrentDataToLegacy = async () => {
+    if (!user) throw new Error('User must be authenticated');
+
+    try {
+      const { data, error } = await supabase.rpc('convert_current_data_to_legacy', {
+        current_user_id: user.id
+      });
+
+      if (error) {
+        console.error('Error converting data to legacy:', error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error converting data to legacy:', error);
+      throw error;
+    }
+  };
+
   return {
     purchases,
     sales,
@@ -426,5 +446,6 @@ export const useBrownieData = () => {
     deleteSale,
     getFinancialSummary,
     migrateLegacyData,
+    convertCurrentDataToLegacy,
   };
 };

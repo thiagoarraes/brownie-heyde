@@ -5,22 +5,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useBrownieData } from '@/hooks/useBrownieData';
 import { UserPlus, ArrowRight } from 'lucide-react';
 
-const AccountMigration = () => {
+interface AccountMigrationProps {
+  onConvertToLegacy: () => Promise<any>;
+}
+
+const AccountMigration = ({ onConvertToLegacy }: AccountMigrationProps) => {
   const [newEmail, setNewEmail] = useState('heydebezerra@gmail.com');
   const [newPassword, setNewPassword] = useState('hs2t0103');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, signOut } = useAuth();
-  const { migrateLegacyData } = useBrownieData();
   const { toast } = useToast();
 
   const handleCreateNewAccount = async () => {
     setIsLoading(true);
     try {
-      // First, migrate current data to legacy (set user_id to null)
-      // This will be handled by creating a new function
+      // First, convert current data to legacy (set user_id to null)
+      const result = await onConvertToLegacy();
+      
+      if (result?.success) {
+        toast({
+          title: "Dados preparados",
+          description: `${result.purchases_converted} compras, ${result.sales_converted} vendas e ${result.customers_converted} clientes foram preparados para migração.`,
+        });
+      }
       
       // Sign out current user
       await signOut();

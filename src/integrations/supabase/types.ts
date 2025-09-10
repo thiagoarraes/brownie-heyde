@@ -160,6 +160,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convert_current_data_to_legacy: {
+        Args: { current_user_id: string }
+        Returns: Json
+      }
       migrate_legacy_data_to_user: {
         Args: { target_user_id: string }
         Returns: Json

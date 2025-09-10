@@ -29,7 +29,8 @@ const Index = () => {
     deletePurchase,
     deleteSale,
     getFinancialSummary,
-    migrateLegacyData
+    migrateLegacyData,
+    convertCurrentDataToLegacy
   } = useBrownieData();
   const summary = getFinancialSummary();
   useEffect(() => {
@@ -52,7 +53,12 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <Dashboard summary={summary} customerCount={customers.length} onMigrateLegacyData={migrateLegacyData} />;
+        return <Dashboard 
+          summary={summary} 
+          customerCount={customers.length} 
+          onMigrateLegacyData={migrateLegacyData}
+          onConvertToLegacy={convertCurrentDataToLegacy}
+        />;
       case 'purchases':
         return <PurchaseForm onAddPurchase={addPurchase} onUpdatePurchase={updatePurchase} onDeletePurchase={deletePurchase} purchases={purchases} />;
       case 'sales':
@@ -62,7 +68,12 @@ const Index = () => {
       case 'reports':
         return <Reports purchases={purchases} sales={sales} summary={summary} />;
       default:
-        return <Dashboard summary={summary} customerCount={customers.length} onMigrateLegacyData={migrateLegacyData} />;
+        return <Dashboard 
+          summary={summary} 
+          customerCount={customers.length} 
+          onMigrateLegacyData={migrateLegacyData}
+          onConvertToLegacy={convertCurrentDataToLegacy}
+        />;
     }
   };
   return <div className="min-h-screen bg-background">

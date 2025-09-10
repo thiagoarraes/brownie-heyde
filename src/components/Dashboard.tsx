@@ -2,14 +2,16 @@ import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Package, Users } from 'lucide-react';
 import { FinancialSummary } from '@/types/brownie';
 import MigrateLegacyData from './MigrateLegacyData';
+import AccountMigration from './AccountMigration';
 
 interface DashboardProps {
   summary: FinancialSummary;
   customerCount: number;
   onMigrateLegacyData?: () => Promise<any>;
+  onConvertToLegacy?: () => Promise<any>;
 }
 
-const Dashboard = ({ summary, customerCount, onMigrateLegacyData }: DashboardProps) => {
+const Dashboard = ({ summary, customerCount, onMigrateLegacyData, onConvertToLegacy }: DashboardProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -85,6 +87,11 @@ const Dashboard = ({ summary, customerCount, onMigrateLegacyData }: DashboardPro
       {/* Legacy Data Migration */}
       {onMigrateLegacyData && (
         <MigrateLegacyData onMigrate={onMigrateLegacyData} />
+      )}
+      
+      {/* Account Migration */}
+      {onConvertToLegacy && (
+        <AccountMigration onConvertToLegacy={onConvertToLegacy} />
       )}
 
       {/* Financial Summary */}
