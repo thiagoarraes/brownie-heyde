@@ -23,6 +23,7 @@ const Auth = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if (user && !loading) {
+      console.log('Auth: Redirecting to dashboard, user:', user.email);
       navigate('/');
     }
   }, [user, loading, navigate]);

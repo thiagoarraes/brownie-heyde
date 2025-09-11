@@ -32,7 +32,9 @@ const Index = () => {
   } = useBrownieData();
   const summary = getFinancialSummary();
   useEffect(() => {
+    console.log('Index: Auth state check:', { loading, user: user?.email });
     if (!loading && !user) {
+      console.log('Index: No user found, redirecting to auth');
       navigate('/auth');
     }
   }, [user, loading, navigate]);
@@ -41,12 +43,21 @@ const Index = () => {
     navigate('/auth');
   };
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
       </div>;
   }
+  
   if (!user) {
-    return null;
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecionando para login...</p>
+        </div>
+      </div>;
   }
   const renderContent = () => {
     switch (activeTab) {
