@@ -1,18 +1,13 @@
 import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Package, Users } from 'lucide-react';
 import { FinancialSummary } from '@/types/brownie';
-import MigrateLegacyData from './MigrateLegacyData';
-import AccountMigration from './AccountMigration';
-import EmailConfirmationTool from './EmailConfirmationTool';
 
 interface DashboardProps {
   summary: FinancialSummary;
   customerCount: number;
-  onMigrateLegacyData?: () => Promise<any>;
-  onConvertToLegacy?: () => Promise<any>;
 }
 
-const Dashboard = ({ summary, customerCount, onMigrateLegacyData, onConvertToLegacy }: DashboardProps) => {
+const Dashboard = ({ summary, customerCount }: DashboardProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -84,19 +79,6 @@ const Dashboard = ({ summary, customerCount, onMigrateLegacyData, onConvertToLeg
         <h1 className="text-2xl font-bold text-foreground mb-2">Controle de Brownies</h1>
         <p className="text-muted-foreground">Acompanhe seu negócio em tempo real</p>
       </div>
-
-      {/* Legacy Data Migration */}
-      {onMigrateLegacyData && (
-        <MigrateLegacyData onMigrate={onMigrateLegacyData} />
-      )}
-      
-      {/* Account Migration */}
-      {onConvertToLegacy && (
-        <AccountMigration onConvertToLegacy={onConvertToLegacy} />
-      )}
-      
-      {/* Email Confirmation Tool */}
-      <EmailConfirmationTool />
 
       {/* Financial Summary */}
       <div className="grid grid-cols-1 gap-4">

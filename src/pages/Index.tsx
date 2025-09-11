@@ -28,9 +28,7 @@ const Index = () => {
     updateSale,
     deletePurchase,
     deleteSale,
-    getFinancialSummary,
-    migrateLegacyData,
-    convertCurrentDataToLegacy
+    getFinancialSummary
   } = useBrownieData();
   const summary = getFinancialSummary();
   useEffect(() => {
@@ -55,9 +53,7 @@ const Index = () => {
       case 'home':
         return <Dashboard 
           summary={summary} 
-          customerCount={customers.length} 
-          onMigrateLegacyData={migrateLegacyData}
-          onConvertToLegacy={convertCurrentDataToLegacy}
+          customerCount={customers.length}
         />;
       case 'purchases':
         return <PurchaseForm onAddPurchase={addPurchase} onUpdatePurchase={updatePurchase} onDeletePurchase={deletePurchase} purchases={purchases} />;
@@ -70,9 +66,7 @@ const Index = () => {
       default:
         return <Dashboard 
           summary={summary} 
-          customerCount={customers.length} 
-          onMigrateLegacyData={migrateLegacyData}
-          onConvertToLegacy={convertCurrentDataToLegacy}
+          customerCount={customers.length}
         />;
     }
   };

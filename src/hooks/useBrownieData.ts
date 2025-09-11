@@ -391,49 +391,6 @@ export const useBrownieData = () => {
     }
   };
 
-  const migrateLegacyData = async () => {
-    if (!user) throw new Error('User must be authenticated');
-
-    try {
-      const { data, error } = await supabase.rpc('migrate_legacy_data_to_user', {
-        target_user_id: user.id
-      });
-
-      if (error) {
-        console.error('Error migrating legacy data:', error);
-        throw error;
-      }
-
-      // Reload all data after migration
-      await loadData();
-      
-      return data;
-    } catch (error) {
-      console.error('Error migrating legacy data:', error);
-      throw error;
-    }
-  };
-
-  const convertCurrentDataToLegacy = async () => {
-    if (!user) throw new Error('User must be authenticated');
-
-    try {
-      const { data, error } = await supabase.rpc('convert_current_data_to_legacy', {
-        current_user_id: user.id
-      });
-
-      if (error) {
-        console.error('Error converting data to legacy:', error);
-        throw error;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error converting data to legacy:', error);
-      throw error;
-    }
-  };
-
   return {
     purchases,
     sales,
@@ -445,7 +402,5 @@ export const useBrownieData = () => {
     deletePurchase,
     deleteSale,
     getFinancialSummary,
-    migrateLegacyData,
-    convertCurrentDataToLegacy,
   };
 };
