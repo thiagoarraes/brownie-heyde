@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, Package, Users } from 'lucide-react';
 import { FinancialSummary } from '@/types/brownie';
 import MigrateLegacyData from './MigrateLegacyData';
 import AccountMigration from './AccountMigration';
+import EmailConfirmationTool from './EmailConfirmationTool';
 
 interface DashboardProps {
   summary: FinancialSummary;
@@ -93,6 +94,9 @@ const Dashboard = ({ summary, customerCount, onMigrateLegacyData, onConvertToLeg
       {onConvertToLegacy && (
         <AccountMigration onConvertToLegacy={onConvertToLegacy} />
       )}
+      
+      {/* Email Confirmation Tool */}
+      <EmailConfirmationTool />
 
       {/* Financial Summary */}
       <div className="grid grid-cols-1 gap-4">
