@@ -32,7 +32,10 @@ const Index = () => {
   } = useBrownieData();
   const summary = getFinancialSummary();
   useEffect(() => {
-    console.log('Index: Auth state check:', { loading, user: user?.email });
+    console.log('Index: Auth state check:', {
+      loading,
+      user: user?.email
+    });
     if (!loading && !user) {
       console.log('Index: No user found, redirecting to auth');
       navigate('/auth');
@@ -50,7 +53,6 @@ const Index = () => {
         </div>
       </div>;
   }
-  
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -62,10 +64,7 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <Dashboard 
-          summary={summary} 
-          customerCount={customers.length}
-        />;
+        return <Dashboard summary={summary} customerCount={customers.length} />;
       case 'purchases':
         return <PurchaseForm onAddPurchase={addPurchase} onUpdatePurchase={updatePurchase} onDeletePurchase={deletePurchase} purchases={purchases} />;
       case 'sales':
@@ -75,15 +74,12 @@ const Index = () => {
       case 'reports':
         return <Reports purchases={purchases} sales={sales} summary={summary} />;
       default:
-        return <Dashboard 
-          summary={summary} 
-          customerCount={customers.length}
-        />;
+        return <Dashboard summary={summary} customerCount={customers.length} />;
     }
   };
   return <div className="min-h-screen bg-background">
       <div className="flex items-center justify-between p-4 border-b">
-        <h1 className="text-xl font-bold">🧁 HeyBrownies</h1>
+        <h1 className="text-xl font-bold">🧁 HeyDoces</h1>
         <Button variant="outline" size="sm" onClick={handleSignOut}>
           <LogOut className="h-4 w-4 mr-2" />
           Sair
