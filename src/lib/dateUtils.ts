@@ -6,6 +6,11 @@
  * Formats a date to Brazilian format DD/MM/YYYY
  */
 export const formatDateBR = (date: string | Date): string => {
+  // Se for string no formato YYYY-MM-DD, use conversão direta para evitar problemas de fuso horário
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return convertInputDateToBRFormat(date);
+  }
+  
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('pt-BR');
 };
