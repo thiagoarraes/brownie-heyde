@@ -20,9 +20,14 @@ export const formatDateTimeBR = (date: string | Date): string => {
 
 /**
  * Gets today's date in YYYY-MM-DD format for HTML date inputs
+ * Uses local timezone to avoid date shifting issues
  */
 export const getTodayInputFormat = (): string => {
-  return new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 /**
@@ -39,4 +44,31 @@ export const convertBRDateToInputFormat = (brDate: string): string => {
 export const convertInputDateToBRFormat = (inputDate: string): string => {
   const [year, month, day] = inputDate.split('-');
   return `${day}/${month}/${year}`;
+};
+
+/**
+ * Ensures date is in YYYY-MM-DD format without timezone conversion
+ * This prevents the date from shifting when saved to database
+ */
+export const ensureDateFormat = (date: string): string => {
+  // If it's already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
+  
+  // If it's in DD/MM/YYYY format, convert to YYYY-MM-DD
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+    return convertBRDateToInputFormat(date);
+  }
+  
+  // For any other format, try to parse and format correctly
+  const dateObj = new Date(date);
+  if (!isNaN(dateObj.getTime())) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  return date; // Return original if can't parse
 };

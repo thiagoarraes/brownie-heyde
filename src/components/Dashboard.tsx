@@ -76,7 +76,7 @@ const Dashboard = ({ summary, customerCount }: DashboardProps) => {
   return (
     <div className="p-4 pb-20 space-y-6">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Controle de Brownies</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">HeyDoce</h1>
         <p className="text-muted-foreground">Acompanhe seu negócio em tempo real</p>
       </div>
 

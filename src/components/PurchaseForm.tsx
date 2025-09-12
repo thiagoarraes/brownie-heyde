@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { ShoppingBag, MoreVertical, Edit } from 'lucide-react';
 import { Purchase } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
-import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
+import { formatDateBR, getTodayInputFormat, ensureDateFormat } from '@/lib/dateUtils';
 import EditPurchaseDialog from '@/components/EditPurchaseDialog';
 import DeletePurchaseDialog from '@/components/DeletePurchaseDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -43,7 +43,7 @@ const PurchaseForm = ({ onAddPurchase, onUpdatePurchase, onDeletePurchase, purch
 
     try {
       await onAddPurchase({
-        date: formData.date,
+        date: ensureDateFormat(formData.date),
         quantity: Number(formData.quantity),
         totalValue: Number(formData.totalValue),
         supplier: formData.supplier,

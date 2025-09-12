@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { TrendingUp, MoreVertical, Edit } from 'lucide-react';
 import { Sale } from '@/types/brownie';
 import { useToast } from '@/hooks/use-toast';
-import { formatDateBR, getTodayInputFormat } from '@/lib/dateUtils';
+import { formatDateBR, getTodayInputFormat, ensureDateFormat } from '@/lib/dateUtils';
 import EditSaleDialog from '@/components/EditSaleDialog';
 import DeleteSaleDialog from '@/components/DeleteSaleDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -51,7 +51,7 @@ const SaleForm = ({ onAddSale, onUpdateSale, onDeleteSale, sales, customers }: S
 
     try {
       await onAddSale({
-        date: formData.date,
+        date: ensureDateFormat(formData.date),
         customerName: formData.customerName,
         quantity: Number(formData.quantity),
         unitPrice: Number(formData.unitPrice),
